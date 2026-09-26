@@ -250,3 +250,10 @@ tbody tr:hover {
         font-size: 13px;
     }
 }
+
+.form-group input:disabled {
+    background-color: #edf2f7;
+    color: #a0aec0;
+    cursor: not-allowed;
+    border-color: #e2e8f0;
+}

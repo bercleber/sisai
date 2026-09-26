@@ -166,38 +166,59 @@ function formularioValido() {
   );
 }
 
-function atualizarBotao() {
-  botaoCadastrar.disabled = !formularioValido();
+function atualizarFluxoFormulario() {
+  const nomeValido = validarNome(campos.nome.value);
+
+  campos.email.disabled = !nomeValido;
+
+  const emailValido = nomeValido && validarEmail(campos.email.value);
+
+  campos.telefone.disabled = !emailValido;
+
+  const telefoneValido = emailValido && validarTelefone(campos.telefone.value);
+
+  campos.cidade.disabled = !telefoneValido;
+
+  const cidadeValida = telefoneValido && validarCidade(campos.cidade.value);
+
+  botaoCadastrar.disabled = !cidadeValida;
+
+  limparErrosCamposBloqueados();
 }
 
+function limparErrosCamposBloqueados() {
+  Object.keys(campos).forEach((campo) => {
+    if (campos[campo].disabled) {
+      limparErro(campo);
+    }
+  });
+}
 /* =========================
    Eventos dos campos
 ========================= */
 
 Object.keys(campos).forEach((campo) => {
   campos[campo].addEventListener("input", () => {
-    /*
-     * Se o usuário já recebeu uma mensagem
-     * de erro, validamos novamente enquanto
-     * ele corrige o campo.
-     */
     if (erros[campo].textContent) {
       validarCampo(campo);
     }
 
-    atualizarBotao();
+    atualizarFluxoFormulario();
   });
 
   campos[campo].addEventListener("blur", () => {
-    validarCampo(campo);
-    atualizarBotao();
+    if (!campos[campo].disabled) {
+      validarCampo(campo);
+    }
+
+    atualizarFluxoFormulario();
   });
 });
 
 campos.telefone.addEventListener("input", (event) => {
   event.target.value = formatarTelefone(event.target.value);
 
-  atualizarBotao();
+  atualizarFluxoFormulario();
 });
 
 /* =========================
@@ -280,7 +301,7 @@ form.addEventListener("submit", async (event) => {
   const cidadeValida = validarCampo("cidade");
 
   if (!nomeValido || !emailValido || !telefoneValido || !cidadeValida) {
-    atualizarBotao();
+    atualizarFluxoFormulario();
     return;
   }
 
@@ -329,7 +350,7 @@ form.addEventListener("submit", async (event) => {
     alert("Não foi possível cadastrar o cliente. Tente novamente.");
   } finally {
     botaoCadastrar.textContent = "CADASTRAR";
-    atualizarBotao();
+    atualizarFluxoFormulario();
   }
 });
 
@@ -356,11 +377,19 @@ function limparFormulario() {
     limparErro(campo);
   });
 
+  campos.nome.disabled = false;
+  campos.email.disabled = true;
+  campos.telefone.disabled = true;
+  campos.cidade.disabled = true;
+
   botaoCadastrar.disabled = true;
+
+  campos.nome.focus();
 }
 
 /* =========================
    Inicialização
 ========================= */
 
+atualizarFluxoFormulario();
 carregarClientes();
