@@ -8,9 +8,18 @@
         <title>Cadastro de Clientes</title>
 
         <link rel="stylesheet" href="style.css" />
+        <script src="auth.js" defer></script>
     </head>
 
-    <body>
+    <body hidden>
+        <header class="barra-superior">
+            <nav class="navegacao" aria-label="Navegação principal">
+                <a class="navegacao-link" href="index.html" aria-current="page">Clientes</a>
+                <span class="navegacao-usuario" id="nome-usuario"></span>
+                <button type="button" id="btn-sair">Sair</button>
+            </nav>
+        </header>
+
         <main class="container">
             <section class="cadastro">
                 <h1>Cadastro de Clientes</h1>
@@ -111,6 +120,5 @@
             </section>
         </main>
 
-        <script src="app.js"></script>
     </body>
 </html>

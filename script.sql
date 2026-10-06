@@ -14,3 +14,13 @@ CREATE TABLE clientes (
 
     PRIMARY KEY (id)
 );
+
+CREATE TABLE usuarios (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    email VARCHAR(254) NOT NULL,
+    senha VARCHAR(255) NOT NULL,
+    nome VARCHAR(150) NOT NULL,
+
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_usuarios_email (email)
+);

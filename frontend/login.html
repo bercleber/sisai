@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Login</title>
+        <link rel="stylesheet" href="style.css" />
+        <script src="login.js" defer></script>
+    </head>
+
+    <body>
+        <main class="container container-login">
+            <section class="cadastro" aria-labelledby="titulo-login">
+                <h1 id="titulo-login">Login</h1>
+
+                <form id="form-login" novalidate>
+                    <div class="form-grid login-grid">
+                        <div class="form-group">
+                            <label for="usuario">Usuário</label>
+                            <input
+                                type="email"
+                                id="usuario"
+                                name="usuario"
+                                placeholder="email@exemplo.com"
+                                autocomplete="username"
+                                autocapitalize="none"
+                                spellcheck="false"
+                                aria-describedby="erro-usuario"
+                                required
+                            />
+                            <span class="mensagem-erro" id="erro-usuario" aria-live="polite"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="senha">Senha</label>
+                            <div class="campo-senha">
+                                <input
+                                    type="password"
+                                    id="senha"
+                                    name="senha"
+                                    placeholder="Digite sua senha"
+                                    autocomplete="current-password"
+                                    minlength="6"
+                                    aria-describedby="requisitos-senha erro-senha"
+                                    required
+                                    disabled
+                                />
+                                <button
+                                    type="button"
+                                    id="toggle-senha"
+                                    aria-label="Mostrar senha"
+                                    aria-controls="senha"
+                                    aria-pressed="false"
+                                    disabled
+                                >Mostrar</button>
+                            </div>
+                            <p class="dica-campo" id="requisitos-senha">
+                                Use no mínimo 6 caracteres, incluindo uma letra
+                                maiúscula, uma minúscula, um número e um caractere especial.
+                            </p>
+                            <span class="mensagem-erro" id="erro-senha" aria-live="polite"></span>
+                        </div>
+                    </div>
+
+                    <p class="mensagem-erro" id="erro-login" role="alert"></p>
+
+                    <div class="form-actions">
+                        <button type="submit" id="btn-login" disabled>LOGIN</button>
+                    </div>
+                </form>
+            </section>
+        </main>
+    </body>
+</html>

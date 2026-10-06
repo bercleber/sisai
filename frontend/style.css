@@ -18,6 +18,70 @@ body {
     padding: 40px 20px;
 }
 
+/* Navegação */
+
+.barra-superior {
+    background-color: #fff;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.navegacao {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 12px 20px;
+}
+
+.navegacao-link {
+    flex-shrink: 0;
+    color: #2d3748;
+    font-size: 16px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.navegacao-link:hover {
+    color: #2b6cb0;
+}
+
+.navegacao-usuario {
+    margin-left: auto;
+    min-width: 0;
+    color: #4a5568;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+
+#btn-sair {
+    flex-shrink: 0;
+    min-height: 44px;
+    padding: 0 20px;
+    border: 1px solid #2b6cb0;
+    border-radius: 4px;
+    background-color: #fff;
+    color: #2b6cb0;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+#btn-sair:hover {
+    background-color: #edf2f7;
+}
+
+.navegacao-link:focus-visible,
+#btn-sair:focus-visible {
+    outline: 2px solid #3182ce;
+    outline-offset: 3px;
+}
+
 .cadastro,
 .lista-clientes {
     background-color: #fff;
@@ -114,7 +178,8 @@ h2 {
     margin-top: 25px;
 }
 
-#btn-cadastrar {
+#btn-cadastrar,
+#btn-login {
     min-width: 150px;
     height: 44px;
     padding: 0 24px;
@@ -135,14 +200,96 @@ h2 {
         opacity 0.2s ease;
 }
 
-#btn-cadastrar:hover:not(:disabled) {
+#btn-cadastrar:hover:not(:disabled),
+#btn-login:hover:not(:disabled) {
     background-color: #2c5282;
 }
 
-#btn-cadastrar:disabled {
+#btn-cadastrar:disabled,
+#btn-login:disabled {
     background-color: #a0aec0;
     cursor: not-allowed;
     opacity: 0.7;
+}
+
+/* Login */
+
+.container-login {
+    max-width: 500px;
+}
+
+.login-grid {
+    grid-template-columns: 1fr;
+}
+
+.container-login .form-actions {
+    justify-content: center;
+}
+
+.container-login .mensagem-erro {
+    text-align: center;
+}
+
+#erro-login {
+    min-height: 0;
+    margin-top: 0;
+}
+
+#erro-login:not(:empty) {
+    margin-top: 16px;
+    padding: 12px 16px;
+    border: 1px solid #feb2b2;
+    border-radius: 6px;
+    background-color: #fff5f5;
+    color: #9b2c2c;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+.campo-senha {
+    position: relative;
+}
+
+.campo-senha input {
+    padding-right: 90px;
+}
+
+#toggle-senha {
+    position: absolute;
+    top: 1px;
+    right: 1px;
+    bottom: 1px;
+    padding: 0 12px;
+    border: none;
+    border-radius: 3px;
+    background: transparent;
+    color: #2b6cb0;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#toggle-senha:hover:not(:disabled) {
+    background-color: #edf2f7;
+}
+
+#toggle-senha:disabled {
+    color: #a0aec0;
+    cursor: not-allowed;
+}
+
+#toggle-senha:focus-visible,
+#btn-login:focus-visible {
+    outline: 2px solid #3182ce;
+    outline-offset: 2px;
+}
+
+.dica-campo {
+    margin-top: 8px;
+    color: #4a5568;
+    font-size: 12px;
+    line-height: 1.5;
 }
 
 /* Tabela */
@@ -188,6 +335,10 @@ tbody tr:hover {
 /* Responsividade */
 
 @media (max-width: 768px) {
+    .navegacao {
+        padding: 12px 15px;
+    }
+
     .container {
         padding: 20px 15px;
     }
@@ -220,6 +371,10 @@ tbody tr:hover {
 }
 
 @media (max-width: 480px) {
+    .navegacao {
+        padding: 12px;
+    }
+
     .container {
         padding: 12px;
     }

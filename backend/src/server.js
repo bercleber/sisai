@@ -57,6 +57,44 @@ function validarCidade(cidade) {
 }
 
 /*
+ * POST /login
+ * Confere o e-mail e compara a senha diretamente para este exemplo didático.
+ */
+app.post("/login", async (req, res) => {
+  const { usuario, senha } = req.body ?? {};
+
+  if (
+    !validarEmail(usuario) ||
+    typeof senha !== "string" ||
+    senha.length === 0
+  ) {
+    return res.status(401).json({ mensagem: "Credenciais inválidas" });
+  }
+
+  try {
+    const usuarios = await pool.query(
+      "SELECT nome, senha FROM usuarios WHERE email = ? LIMIT 1",
+      [usuario.trim().toLowerCase()],
+    );
+
+    const usuarioEncontrado = usuarios[0];
+
+    if (!usuarioEncontrado || senha !== usuarioEncontrado.senha) {
+      return res.status(401).json({ mensagem: "Credenciais inválidas" });
+    }
+
+    return res.status(200).json({
+      mensagem: "Login realizado com sucesso.",
+      usuario: { nome: usuarioEncontrado.nome },
+    });
+  } catch (error) {
+    console.error("Erro ao realizar login:", error);
+
+    return res.status(500).json({ mensagem: "Credenciais inválidas" });
+  }
+});
+
+/*
  * GET /clientes
  * Retorna todos os clientes cadastrados.
  */
