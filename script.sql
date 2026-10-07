@@ -24,3 +24,14 @@ CREATE TABLE usuarios (
     PRIMARY KEY (id),
     UNIQUE KEY uk_usuarios_email (email)
 );
+
+CREATE TABLE tokens (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    token VARCHAR(255) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+    usuario_id BIGINT UNSIGNED NOT NULL,
+    emitido_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_tokens_token (token),
+    CONSTRAINT fk_tokens_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios (id)
+);

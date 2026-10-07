@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import { randomBytes } from "node:crypto";
 import "dotenv/config";
 
 import pool from "./database.js";
@@ -56,12 +57,44 @@ function validarCidade(cidade) {
   return typeof cidade === "string" && cidade.trim().length >= 5;
 }
 
+async function autenticarToken(req, res, next) {
+  const autorizacao = req.get("Authorization") || "";
+  const token = /^Bearer ([a-f0-9]{64})$/i.exec(autorizacao)?.[1];
+
+  if (!token) {
+    return res.status(401).json({ mensagem: "Token inválido." });
+  }
+
+  try {
+    const usuarios = await pool.query(
+      `SELECT usuarios.id, usuarios.nome
+       FROM tokens
+       INNER JOIN usuarios ON usuarios.id = tokens.usuario_id
+       WHERE tokens.token = ? LIMIT 1`,
+      [token],
+    );
+
+    if (!usuarios[0]) {
+      return res.status(401).json({ mensagem: "Token inválido." });
+    }
+
+    req.usuario = usuarios[0];
+    req.token = token;
+  } catch (error) {
+    console.error("Erro ao validar token:", error);
+    return res.status(500).json({ mensagem: "Erro ao verificar autenticação." });
+  }
+
+  next();
+}
+
 /*
  * POST /login
  * Confere o e-mail e compara a senha diretamente para este exemplo didático.
  */
 app.post("/login", async (req, res) => {
   const { usuario, senha } = req.body ?? {};
+  let connection;
 
   if (
     !validarEmail(usuario) ||
@@ -72,25 +105,71 @@ app.post("/login", async (req, res) => {
   }
 
   try {
-    const usuarios = await pool.query(
-      "SELECT nome, senha FROM usuarios WHERE email = ? LIMIT 1",
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
+
+    // Serializa logins do mesmo usuário para manter apenas um token ativo.
+    const usuarios = await connection.query(
+      "SELECT id, nome, senha FROM usuarios WHERE email = ? LIMIT 1 FOR UPDATE",
       [usuario.trim().toLowerCase()],
     );
 
     const usuarioEncontrado = usuarios[0];
 
     if (!usuarioEncontrado || senha !== usuarioEncontrado.senha) {
+      await connection.rollback();
       return res.status(401).json({ mensagem: "Credenciais inválidas" });
     }
 
+    const token = randomBytes(32).toString("hex");
+
+    // A exclusão e a criação são confirmadas juntas após validar a senha.
+    await connection.query(
+      "DELETE FROM tokens WHERE usuario_id = ?",
+      [usuarioEncontrado.id],
+    );
+
+    await connection.query(
+      "INSERT INTO tokens (token, usuario_id) VALUES (?, ?)",
+      [token, usuarioEncontrado.id],
+    );
+
+    await connection.commit();
+
     return res.status(200).json({
       mensagem: "Login realizado com sucesso.",
+      token,
       usuario: { nome: usuarioEncontrado.nome },
     });
   } catch (error) {
+    if (connection) {
+      try {
+        await connection.rollback();
+      } catch (rollbackError) {
+        console.error("Erro ao desfazer login:", rollbackError);
+      }
+    }
+
     console.error("Erro ao realizar login:", error);
 
     return res.status(500).json({ mensagem: "Credenciais inválidas" });
+  } finally {
+    if (connection) connection.release();
+  }
+});
+
+app.get("/validar-token", autenticarToken, (req, res) => {
+  res.set("Cache-Control", "no-store");
+  return res.status(200).json({ usuario: { nome: req.usuario.nome } });
+});
+
+app.post("/logout", autenticarToken, async (req, res) => {
+  try {
+    await pool.query("DELETE FROM tokens WHERE token = ?", [req.token]);
+    return res.sendStatus(204);
+  } catch (error) {
+    console.error("Erro ao encerrar sessão:", error);
+    return res.status(500).json({ mensagem: "Erro ao encerrar sessão." });
   }
 });
 
@@ -98,7 +177,7 @@ app.post("/login", async (req, res) => {
  * GET /clientes
  * Retorna todos os clientes cadastrados.
  */
-app.get("/clientes", async (req, res) => {
+app.get("/clientes", autenticarToken, async (req, res) => {
   try {
     const clientes = await pool.query(`
       SELECT
@@ -131,7 +210,7 @@ app.get("/clientes", async (req, res) => {
  * POST /clientes
  * Valida os dados e cadastra um novo cliente.
  */
-app.post("/clientes", async (req, res) => {
+app.post("/clientes", autenticarToken, async (req, res) => {
   const { nome, email, telefone, cidade } = req.body;
 
   const erros = {};

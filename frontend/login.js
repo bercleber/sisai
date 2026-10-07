@@ -126,6 +126,7 @@ form.addEventListener("submit", async (event) => {
   try {
     sessionStorage.removeItem("sisai_logado");
     sessionStorage.removeItem("sisai_usuario_nome");
+    sessionStorage.removeItem("sisai_token");
 
     const resposta = await fetch(LOGIN_API_URL, {
       method: "POST",
@@ -141,13 +142,18 @@ form.addEventListener("submit", async (event) => {
     const dados = await resposta.json();
     const nome = dados.usuario?.nome;
 
-    if (typeof nome !== "string" || !nome.trim()) {
+    if (
+      typeof nome !== "string" ||
+      !nome.trim() ||
+      typeof dados.token !== "string" ||
+      !/^[a-f0-9]{64}$/.test(dados.token)
+    ) {
       erroLogin.textContent = "Credenciais inválidas";
       return;
     }
 
     sessionStorage.setItem("sisai_usuario_nome", nome.trim());
-    sessionStorage.setItem("sisai_logado", "true");
+    sessionStorage.setItem("sisai_token", dados.token);
     window.location.replace("index.html");
   } catch {
     erroLogin.textContent = "Credenciais inválidas";

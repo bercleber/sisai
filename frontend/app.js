@@ -227,7 +227,8 @@ campos.telefone.addEventListener("input", (event) => {
 
 async function carregarClientes() {
   try {
-    const resposta = await fetch(API_URL);
+    const resposta = await fetchAutenticado(API_URL);
+    if (!resposta) return;
 
     if (!resposta.ok) {
       throw new Error("Erro ao buscar clientes.");
@@ -316,7 +317,7 @@ form.addEventListener("submit", async (event) => {
     botaoCadastrar.disabled = true;
     botaoCadastrar.textContent = "CADASTRANDO...";
 
-    const resposta = await fetch(API_URL, {
+    const resposta = await fetchAutenticado(API_URL, {
       method: "POST",
 
       headers: {
@@ -325,6 +326,8 @@ form.addEventListener("submit", async (event) => {
 
       body: JSON.stringify(cliente),
     });
+
+    if (!resposta) return;
 
     const dados = await resposta.json();
 
